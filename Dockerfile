@@ -1,5 +1,5 @@
-# Use Python 3.9 as the base image
-FROM python:3.9
+# Use Python 3.9 slim as the base image
+FROM python:3.9-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -10,8 +10,8 @@ COPY . /app
 # Install required Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port that Flask runs on
+# Expose Flask's default port
 EXPOSE 5000
 
-# Command to run the application
+# Command to run the Python application
 CMD ["python", "attendance_tracker.py"]
