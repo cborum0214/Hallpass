@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Report</title>
 </head>
 <body>
@@ -10,16 +8,16 @@
     <table border="1">
         <thead>
             <tr>
-                <th>User Name</th>
+                <th>Name</th>
                 <th>Timestamp</th>
             </tr>
         </thead>
         <tbody>
             {% for name, timestamp in report %}
-                <tr>
-                    <td>{{ name }}</td>
-                    <td>{{ timestamp }}</td>
-                </tr>
+            <tr>
+                <td>{{ name }}</td>
+                <td>{{ timestamp }}</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
