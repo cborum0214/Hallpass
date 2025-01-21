@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Attendance Records</h1>
+    <form method="GET" action="/admin">
+        <label>
+            <input type="checkbox" name="filter_date" {% if filters.date %}checked{% endif %}>
+            Date:
+            <input type="date" name="date" value="{{ filters.date }}">
+        </label>
+        <br>
+        <label>
+            <input type="checkbox" name="filter_time" {% if filters.time_start and filters.time_end %}checked{% endif %}>
+            Time Range:
+            <input type="time" name="time_start" value="{{ filters.time_start }}">
+            to
+            <input type="time" name="time_end" value="{{ filters.time_end }}">
+        </label>
+        <br>
+        <label>
+            <input type="checkbox" name="filter_last_name" {% if filters.last_name %}checked{% endif %}>
+            Last Name:
+            <input type="text" name="last_name" value="{{ filters.last_name }}">
+        </label>
+        <br>
+        <label>
+            <input type="checkbox" name="filter_first_name" {% if filters.first_name %}checked{% endif %}>
+            First Name:
+            <input type="text" name="first_name" value="{{ filters.first_name }}">
+        </label>
+        <br>
+        <button type="submit">Apply Filters</button>
+        <a href="/admin">Reset Filters</a>
+    </form>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Last Name</th>
+                <th>First Name</th>
+                <th>Location</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ record.timestamp }}</td>
+                <td>{{ record.last_name }}</td>
+                <td>{{ record.first_name }}</td>
+                <td>{{ record.location }}</td>
+                <td>{{ record.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ back_url }}">Back to Home</a>
+
+</body>
+</html>
