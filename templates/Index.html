@@ -1,25 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Your Page Title</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    </head>
-    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            text-align: center;
+            padding-top: 20px; /* Add spacing from the top */
+            transform: scale(1.2); /* Scale everything by 20% */
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        a img {
+            max-width: 100%;
+            height: auto;
+            cursor: pointer;
+            margin: 20px 0; /* Add spacing between images */
+        }
+    </style>
+</head>
 <body>
-    <h1>Welcome to the Attendance Tracker</h1>
-    <div>
-        <!-- Student Section -->
-        <a href="/student">
-            <img src="path/to/student-image.jpg" alt="Student Section" style="width:200px;height:auto;">
-        </a>
-    </div>
-    <div>
-        <!-- Admin Section -->
-        <a href="/admin">
-            <img src="path/to/admin-image.jpg" alt="Admin Section" style="width:200px;height:auto;">
-        </a>
+    <div class="container">
+        <h1>Welcome to the Attendance Tracker</h1>
+        <div>
+            <!-- Student Section -->
+            <a href="/student">
+                <img src="path/to/student-image.jpg" alt="Student Section">
+            </a>
+        </div>
+        <div>
+            <!-- Admin Section -->
+            <a href="/admin">
+                <img src="path/to/admin-image.jpg" alt="Admin Section">
+            </a>
+        </div>
     </div>
 </body>
 </html>
