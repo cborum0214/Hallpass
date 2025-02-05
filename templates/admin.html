@@ -142,7 +142,7 @@
             <tbody>
                 {% for record in records %}
                 <tr>
-                    <td>{{ record.timestamp }}</td>
+                    <td class="timestamp">{{ record.timestamp }}</td>  <!-- Add class here -->
                     <td>{{ record.last_name }}</td>
                     <td>{{ record.first_name }}</td>
                     <td>{{ record.teacher }}</td>
@@ -153,5 +153,15 @@
             </tbody>
         </table>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const timestamps = document.querySelectorAll('.timestamp');
+    
+            timestamps.forEach(function (element) {
+                const utcDate = new Date(element.innerText.trim() + ' UTC'); // Convert UTC to local
+                element.innerText = utcDate.toLocaleString();               // Format as local time
+            });
+        });
+    </script>
 </body>
 </html>
