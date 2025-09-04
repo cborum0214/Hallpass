@@ -1,18 +1,20 @@
 # attendance_tracker.py
-import os
-from datetime import timedelta
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
+from datetime import timedelta
 
 app = Flask(__name__)
 
-# Secrets / config from env
+# ---------------- App Config ---------------- #
+# Secrets / config from env, with safe fallbacks
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
 app.permanent_session_lifetime = timedelta(minutes=int(os.getenv("SESSION_MINUTES", "20")))
 
-# Database: put SQLite file in /data (mounted volume in docker)
-DB_DIR = os.getenv("DB_DIR", os.path.abspath(os.path.dirname(__file__)))
+# SQLite path: default to project folder; in Docker we usually set DB_DIR=/data
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DB_DIR = os.getenv("DB_DIR", BASE_DIR)
 DB_FILE = os.getenv("DB_FILE", "attendance.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(DB_DIR, DB_FILE)}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -26,10 +28,10 @@ class User(db.Model):
     password_hash = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(50), nullable=False, default="Employee")  # "Admin" or "Employee"
 
-    def set_password(self, password):
+    def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password):
+    def check_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
 
 
@@ -39,8 +41,34 @@ class Attendance(db.Model):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     location = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(20), nullable=False)  # Leaving or Returning
+    status = db.Column(db.String(20), nullable=False)  # "Leaving" or "Returning"
     timestamp = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+
+
+# ---------------- One-time DB Initializer ---------------- #
+def initialize_database() -> None:
+    """
+    Ensure tables exist and seed a default admin if none present.
+    This runs at import time (under app.app_context), so it works with Gunicorn too.
+    """
+    db.create_all()
+    # Seed default admin if missing
+    if not User.query.filter_by(role="Admin").first():
+        default_username = os.getenv("DEFAULT_ADMIN_USER", "admin")
+        default_password = os.getenv("DEFAULT_ADMIN_PASS", "admin123")  # change after first login
+        new_admin = User(username=default_username, role="Admin")
+        new_admin.set_password(default_password)
+        db.session.add(new_admin)
+        db.session.commit()
+
+# Run initializer immediately (works for Flask dev server and Gunicorn)
+with app.app_context():
+    initialize_database()
+
+
+# ---------------- Helpers / Constants ---------------- #
+LOCATIONS = ["Restroom", "Office", "Library", "Cafeteria"]
+TEACHERS = ["Mr. Borum", "Mr. VanCampen"]
 
 
 @app.before_request
@@ -75,14 +103,15 @@ def student():
             db.session.commit()
             flash("Attendance recorded successfully.", "success")
             return redirect(url_for('student'))
+        else:
+            flash("All fields are required.", "danger")
 
-    locations = ["Restroom", "Office", "Library", "Cafeteria"]
-    teachers = ["Mr. Borum", "Mr. VanCampen"]
-    return render_template('student.html', locations=locations, teachers=teachers)
+    return render_template('student.html', locations=LOCATIONS, teachers=TEACHERS)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
+    # Not logged in? Show login form (username + password)
     if 'user_id' not in session:
         if request.method == 'POST':
             username = request.form.get('username')
@@ -97,7 +126,7 @@ def admin():
                 return render_template('admin_login.html', error="Invalid credentials", back_url=url_for('index'))
         return render_template('admin_login.html', back_url=url_for('index'))
 
-    # Filters for records
+    # Logged in: apply filters and show records
     filters = {
         'date_start': request.args.get('date_start'),
         'date_end': request.args.get('date_end'),
@@ -107,8 +136,6 @@ def admin():
         'first_name': request.args.get('first_name', ""),
         'teacher': request.args.get('teacher', "")
     }
-
-    teachers = ["Mr. Borum", "Mr. VanCampen"]
 
     query = Attendance.query
     if filters['date_start'] and filters['date_end']:
@@ -124,11 +151,13 @@ def admin():
 
     attendance_records = query.order_by(Attendance.timestamp.desc()).all()
 
-    return render_template('admin.html',
-                           records=attendance_records,
-                           filters=filters,
-                           teachers=teachers,
-                           back_url=url_for('index'))
+    return render_template(
+        'admin.html',
+        records=attendance_records,
+        filters=filters,
+        teachers=TEACHERS,
+        back_url=url_for('index')
+    )
 
 
 @app.route('/admin/add_admin', methods=['GET', 'POST'])
@@ -138,8 +167,8 @@ def add_admin():
         return redirect(url_for('admin'))
 
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
 
         if not username or not password:
             flash("Both fields are required.", "danger")
@@ -167,20 +196,27 @@ def logout():
 
 @app.route('/attendance_report')
 def attendance_report():
-    report = db.session.query(Attendance.teacher, Attendance.first_name, Attendance.last_name,
-                              Attendance.location, Attendance.status, Attendance.timestamp).all()
+    report = db.session.query(
+        Attendance.teacher,
+        Attendance.first_name,
+        Attendance.last_name,
+        Attendance.location,
+        Attendance.status,
+        Attendance.timestamp
+    ).all()
     return render_template('report.html', report=report)
 
 
+# -------- Optional CLI: flask --app attendance_tracker:app init-db -------- #
+@app.cli.command("init-db")
+def init_db_command():
+    initialize_database()
+    print("Database initialized (tables + default admin if missing).")
+
+
+# ---------------- Local Dev Entry ---------------- #
 if __name__ == '__main__':
+    # For local runs, ensure DB is ready (already handled above, but harmless)
     with app.app_context():
-        db.create_all()
-
-        # Ensure there is at least one default admin
-        if not User.query.filter_by(role="Admin").first():
-            default_admin = User(username="admin", role="Admin")
-            default_admin.set_password("admin123")  # Change after first login
-            db.session.add(default_admin)
-            db.session.commit()
-
+        initialize_database()
     app.run(host='0.0.0.0', port=5000)
