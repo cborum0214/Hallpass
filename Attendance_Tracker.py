@@ -1,19 +1,20 @@
 # attendance_tracker.py
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import timedelta
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'secret_key_for_session'  # Replace with strong secret key
 
-# Configure session timeout
-app.permanent_session_lifetime = timedelta(minutes=20)
+# Secrets / config from env
+app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
+app.permanent_session_lifetime = timedelta(minutes=int(os.getenv("SESSION_MINUTES", "20")))
 
-# Configure SQLite Database
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'attendance.db')}"
+# Database: put SQLite file in /data (mounted volume in docker)
+DB_DIR = os.getenv("DB_DIR", os.path.abspath(os.path.dirname(__file__)))
+DB_FILE = os.getenv("DB_FILE", "attendance.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(DB_DIR, DB_FILE)}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
