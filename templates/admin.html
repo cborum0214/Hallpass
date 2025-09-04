@@ -127,6 +127,10 @@
 
     <!-- Content for Records -->
     <div class="content">
+        {% if session.get('role') == "Admin" %}
+            <a href="{{ url_for('add_admin') }}">➕ Add New Admin</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
         <h1>Attendance Records</h1>
         <table>
             <thead>

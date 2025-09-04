@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Add New Admin</h1>
+    <form method="POST" action="/admin/add_admin">
+        <label for="username">New Admin Username:</label>
+        <input type="text" name="username" id="username" required>
+
+        <label for="password">New Admin Password:</label>
+        <input type="password" name="password" id="password" required>
+
+        <button type="submit">Add Admin</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li style="color: {% if category == 'danger' %}red{% else %}green{% endif %};">
+            {{ message }}
+           </li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <a href="{{ url_for('admin') }}">Back to Admin Dashboard</a>
+</body>
+</html>
