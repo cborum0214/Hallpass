@@ -11,3 +11,11 @@ body {
 form, table, h1, a {
     text-align: center;
 }
+
+.success {
+    color: green;
+}
+
+.danger {
+    color: red;
+}
