@@ -1,5 +1,5 @@
 # attendance_tracker.py
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -76,6 +76,16 @@ def make_session_permanent():
     session.permanent = True
 
 
+# ---------------- Static / Favicon ---------------- #
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon'
+    )
+
+
 # ---------------- Routes ---------------- #
 @app.route('/')
 def index():
@@ -106,7 +116,15 @@ def student():
         else:
             flash("All fields are required.", "danger")
 
-    return render_template('student.html', locations=LOCATIONS, teachers=TEACHERS)
+    selected_teacher = session.get('last_teacher')
+    if not selected_teacher:
+        last_row = Attendance.query.order_by(Attendance.timestamp.desc()).first()
+        selected_teacher = last_row.teacher if last_row else (TEACHERS[0] if TEACHERS else "")
+
+    # Ensure the selected teacher is present in the dropdown list
+    teachers_list = TEACHERS if selected_teacher in TEACHERS else (TEACHERS + [selected_teacher] if selected_teacher else TEACHERS)
+
+    return render_template('student.html', locations=LOCATIONS, teachers=teachers_list, selected_teacher=selected_teacher)
 
 
 @app.route('/admin', methods=['GET', 'POST'])

@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Attendance</title>
+
+     <!-- Favicon & icons (one place for all pages) -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico', v=2) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+
     <style>
         body {
             margin: 0;
@@ -57,10 +64,10 @@
     <div class="container">
         <h1>Student Attendance</h1>
         <form method="POST" action="/student">
-            <label for="teacher">Teacher:</label>
+            <label for="teacher">Teacher</label>
             <select name="teacher" id="teacher" required>
-                {% for teacher in teachers %}
-                    <option value="{{ teacher }}">{{ teacher }}</option>
+                {% for t in teachers %}
+                    <option value="{{ t }}" {% if t == selected_teacher %}selected{% endif %}>{{ t }}</option>
                 {% endfor %}
             </select>
             
