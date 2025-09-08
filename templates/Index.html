@@ -1,40 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Tracker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Tracker</title>
 
-     <!-- Favicon & icons (one place for all pages) -->
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico', v=2) }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16.png') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <!-- Favicon & icons -->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico', v=2) }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
 
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: auto;
-            text-align: center;
-            padding-top: 20px; /* Add spacing from the top */
-            transform: scale(1.2); /* Scale everything by 20% */
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        a img {
-            max-width: 100%;
-            height: auto;
-            cursor: pointer;
-            margin: 20px 0; /* Add spacing between images */
-        }
-    </style>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: auto;
+      text-align: center;
+      padding-top: 20px;
+      /* If you keep this scale, the icons will appear larger than 40×40 (see note below) */
+      transform: scale(1.2);
+      transform-origin: top center;
+    }
+    h1 { margin-bottom: 20px; }
+
+    /* Remove the old "a img { max-width:100%; height:auto; }"
+       because it would fight the fixed 40×40 sizing. */
+    .icon-40 {
+      width: 200px !important;
+      height: 200px !important;
+      object-fit: contain;   /* or "cover" if you prefer a cropped fill */
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .link-wrap {
+      margin: 20px 0;        /* spacing between the two links */
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .label { font-size: 16px; }
+  </style>
 </head>
 <body>
     <div class="container">
@@ -42,13 +54,17 @@
         <div>
             <!-- Student Section -->
             <a href="/student">
-                <img src="path/to/student-image.jpg" alt="Student Section">
+                <img class="icon-40"
+                src="/static/students.png" alt="Student Section">
             </a>
         </div>
+        <br>
+        <br>
         <div>
             <!-- Admin Section -->
             <a href="/admin">
-                <img src="path/to/admin-image.jpg" alt="Admin Section">
+                <img class="icon-40"
+                src="/static/Faculty.png" alt="Admin Section">
             </a>
         </div>
     </div>

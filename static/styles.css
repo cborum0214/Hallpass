@@ -19,3 +19,10 @@ form, table, h1, a {
 .danger {
     color: red;
 }
+.icon-200 {
+      width: 200px !important;
+      height: 200px !important;
+      object-fit: contain;   /* or "cover" if you prefer a cropped fill */
+      display: inline-block;
+      vertical-align: middle;
+    }
