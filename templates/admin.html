@@ -147,6 +147,7 @@
                     <th>First Name</th>
                     <th>Teacher</th>
                     <th>Location</th>
+                    <th>Notes</th>   <!-- ✅ NEW -->
                     <th>Status</th>
                 </tr>
             </thead>
@@ -158,6 +159,7 @@
                     <td>{{ record.first_name }}</td>
                     <td>{{ record.teacher }}</td>
                     <td>{{ record.location }}</td>
+                    <td>{{ record.notes or "" }}</td>  <!-- ✅ NEW -->
                     <td>{{ record.status }}</td>
                 </tr>
                 {% endfor %}

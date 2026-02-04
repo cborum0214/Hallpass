@@ -41,8 +41,10 @@ class Attendance(db.Model):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     location = db.Column(db.String(100), nullable=False)
+    notes = db.Column(db.Text, nullable=True)  # ✅ NEW (optional)
     status = db.Column(db.String(20), nullable=False)  # "Leaving" or "Returning"
     timestamp = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+
 
 
 # ---------------- One-time DB Initializer ---------------- #
@@ -67,8 +69,8 @@ with app.app_context():
 
 
 # ---------------- Helpers / Constants ---------------- #
-LOCATIONS = ["Restroom", "Office", "Library", "Cafeteria"]
-TEACHERS = ["Mr. Borum", "Mr. VanCampen"]
+LOCATIONS = ["Restroom", "Office", "Guidance", "Library", "Cafeteria", "Other Classroom"]
+TEACHERS = ["Mr. Borum", "Mr. VanCampen", "Mrs. Vargus"]
 
 
 @app.before_request
@@ -107,6 +109,7 @@ def student():
                 first_name=first_name,
                 last_name=last_name,
                 location=location,
+                notes=notes,
                 status=status
             )
             db.session.add(new_attendance)
@@ -219,6 +222,7 @@ def attendance_report():
         Attendance.first_name,
         Attendance.last_name,
         Attendance.location,
+        Attendance.notes,
         Attendance.status,
         Attendance.timestamp
     ).all()
